@@ -1,5 +1,6 @@
 #source: https://www.youtube.com/watch?v=fkjjqyfN51c
 import collections
+import os
 from pprint import pprint
 '''scientists = [
     {'name': 'Ada Lovelace', 'field': 'math', 'born': 1894, 'nobel': False},
@@ -20,6 +21,7 @@ scientists = (
     Scientist(name='Sally Ride', field='physic', born=1951, nobel=False),
 )
 pprint(scientists)
+print('')
 
 
 ## FILTER() Function ##
@@ -54,7 +56,7 @@ names_ang_ages = tuple(map(
             lambda x: {'name': x.name, 'age': 2017 - x.born}, scientists
 ))
 
-pprint(names_ang_ages)
+#pprint(names_ang_ages)
 
 #Another way of present above
 #pprint(tuple( {'name': x.name, 'age': 2017 - x.born} for x in scientists))
@@ -63,22 +65,54 @@ pprint(names_ang_ages)
 ## Reduce function
 
 total_age = sum(x['age'] for x in names_ang_ages)
-print(total_age)
+#print(total_age)
 
 # same as above but more geek way!
-total_age_reduce = reduce(lambda x, y: x + y['age'], names_ang_ages,0)
-print(total_age_reduce)
+#total_age_reduce = reduce(lambda x, y: x + y['age'], names_ang_ages,0)
+#print(total_age_reduce)
 
 
 ## Multiprocessing
 import multiprocessing
+import time
+def transform(x):
+    #print 'Processing record {name}'.format( name=x.name)
+    print('Process %s record %s' % (os.getpid(), x.name))
+    time.sleep(1)
+    result = {'name': x.name, 'age:': 2017 - x.born}
+    print('Done processing record {name}'.format(name=x.name))
+    return result
 
-print type(scientists)
 
-
-
+#No multitasking
 #result = tuple(map(transform, scientists))
-#pprint (result)
+
+#Multitasking
+'''
+start = time.time()
+
+pool = multiprocessing.Pool()
+result = pool.map(transform, scientists)
+
+end = time.time()
+'''
+
+#print '\nTime to complete {time2}:'.format(time2=end-start)
+#print '\nTime to complete {time2}: \n'.format(time2=end-start)
+
+#print('\nTime to complete: %f' % time)
+#print(f'\n Time to complete: {end-start:.2f} \n')
+#pprint(result)
 
 
+## Concurrent.futures
+import concurrent.futures
 
+start = time.time()
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    result = executor.map(transform, scientists)
+
+end =time.time()
+
+print(f'\n Time to complete: {end-start:.2f} \n')
+pprint(tuple(result))
